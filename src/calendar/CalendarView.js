@@ -263,7 +263,7 @@ export class CalendarView implements CurrentView {
 		const workPerCalendar = 3 + 3
 		const totalWork = logins.getUserController().getCalendarMemberships().length * workPerCalendar
 		const monitorHandle = locator.progressTracker.registerMonitor(totalWork)
-		const progressMonitor = neverNull(locator.progressTracker.getMonitor(monitorHandle))
+		let progressMonitor = neverNull(locator.progressTracker.getMonitor(monitorHandle))
 		this._calendarInfos = locator.calendarModel.loadOrCreateCalendarInfo(progressMonitor).tap(m.redraw)
 
 		this._calendarInvitations = []
@@ -281,7 +281,10 @@ export class CalendarView implements CurrentView {
 			    .then(() => this._loadMonthIfNeeded(nextMonthDate))
 			    .then(() => progressMonitor.workDone(1))
 			    .then(() => this._loadMonthIfNeeded(previousMonthDate))
-			    .finally(() => progressMonitor.completed())
+			    .finally(() => {
+				    progressMonitor.completed()
+				    progressMonitor = new NoopProgressMonitor()
+			    })
 		})
 
 		this._setupShortcuts();
